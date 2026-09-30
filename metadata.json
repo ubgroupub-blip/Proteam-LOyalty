@@ -1,0 +1,9 @@
+{
+  "name": "Proteam Loyalty - Gym Promotion & Pricing Calculator",
+  "description": "Comprehensive gym promotional and loyalty pricing calculator, package matrix, renewal forecaster, and customer pricing log for Proteam Gym.",
+  "version": "1.0.0",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
