@@ -11,6 +11,7 @@ import {
   formatPercent,
   TIER_CONFIG,
 } from '../utils/calculations';
+import { ProteamLogo } from './ProteamLogo';
 import {
   Calculator,
   Save,
@@ -95,22 +96,23 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
       {/* Main Pricing Calculation Container */}
       <div className="bg-slate-900 border-2 border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
         {/* Title Bar */}
-        <div className="bg-gradient-to-r from-slate-800 via-slate-850 to-slate-800 px-6 py-4 border-b border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="bg-gradient-to-r from-zinc-900 via-zinc-850 to-zinc-900 px-6 py-4 border-b border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
-              <Calculator className="w-5 h-5" />
+            <div className="p-1.5 rounded-xl bg-zinc-950 border border-zinc-800 shadow-md">
+              <ProteamLogo size="sm" showText={false} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-black tracking-tight text-white uppercase">
-                  PRICING CALCULATOR
+                <h1 className="text-lg font-black tracking-tight text-white uppercase italic font-sans flex items-center gap-1.5">
+                  <span>PROTEAM</span>
+                  <span className="text-red-500">PRICING CALCULATOR</span>
                 </h1>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/50 flex items-center gap-1">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-800/50 flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-emerald-400" />
                   Excel Томьёо идэвхтэй
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-zinc-400">
                 Явсан сар болон Багцын хугацааг өөрчлөхөд бүх хөнгөлөлт, үнэ шууд тооцогдоно
               </p>
             </div>
@@ -497,12 +499,12 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
                       onClick={() => setPackageMonths(pkg)}
                       className={`p-2.5 rounded-xl border text-center transition-all ${
                         isSelected
-                          ? 'bg-blue-600/30 border-blue-400 text-white shadow-lg ring-1 ring-blue-400'
-                          : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600'
+                          ? 'bg-red-950/40 border-red-500 text-white shadow-md ring-1 ring-red-500/50'
+                          : 'bg-zinc-850 border-zinc-750 text-zinc-300 hover:border-zinc-650'
                       }`}
                     >
                       <div className="font-bold text-sm">{pkg} сар</div>
-                      <div className="text-[10px] text-blue-300 font-semibold mt-0.5">
+                      <div className={`text-[10px] font-semibold mt-0.5 ${isSelected ? 'text-red-300' : 'text-zinc-400'}`}>
                         {monthsAttended === 0 ? '0%' : `+${formatPercent(pkgRate)}`}
                       </div>
                     </button>
@@ -533,7 +535,7 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
             <div className="flex gap-2 pt-2">
               <button
                 onClick={handleSave}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition active:scale-[0.98]"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-red-600/25 transition active:scale-[0.98]"
               >
                 <Save className="w-4 h-4" />
                 <span>Customer Log-д хадгалах</span>
@@ -602,17 +604,17 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
               </div>
 
               {/* Row 6: Total Discount */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-blue-950/40 border border-blue-500/50 shadow-sm">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-zinc-900 via-zinc-900 to-red-950/30 border border-red-600/40 shadow-sm">
                 <div>
                   <div className="flex items-center gap-1.5">
                     <span className="font-extrabold text-white text-sm">Total Discount (Нийт хөнгөлөлт)</span>
                   </div>
-                  <span className="text-[10px] text-blue-200 font-mono">
+                  <span className="text-[10px] text-red-200/90 font-mono">
                     =E4 + E5 = Package ({formatPercent(calc.packageDiscount)}) + Loyalty ({formatPercent(calc.loyaltyDiscount)})
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono font-black text-blue-300 text-xl">
+                  <span className="font-mono font-black text-red-400 text-xl">
                     {formatPercent(calc.appliedDiscount)}
                   </span>
                 </div>
@@ -667,17 +669,18 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
               </div>
 
               {/* Row 10: Total Current Package Price */}
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/70 to-blue-950/70 border-2 border-emerald-500/50 shadow-lg">
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-gradient-to-r from-zinc-900 via-zinc-900 to-zinc-850 border-2 border-red-500/60 shadow-xl shadow-red-950/20">
                 <div>
-                  <span className="font-black text-emerald-200 block text-sm sm:text-base">
-                    Total Current Package Price (Нийт багцын төлөх дүн)
+                  <span className="font-black text-white block text-sm sm:text-base flex items-center gap-1.5">
+                    <span>Total Current Package Price</span>
+                    <span className="text-xs text-zinc-400 font-normal hidden sm:inline">(Нийт багцын төлөх дүн)</span>
                   </span>
-                  <span className="text-[10px] text-emerald-400 font-mono">
+                  <span className="text-[10px] text-zinc-400 font-mono">
                     =PromotionalMonthlyPrice * {calc.packageMonths} сар
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono font-black text-emerald-300 text-2xl sm:text-3xl">
+                  <span className="font-mono font-black text-white text-2xl sm:text-3xl tracking-tight">
                     {formatCurrency(calc.totalPackagePrice)}
                   </span>
                 </div>

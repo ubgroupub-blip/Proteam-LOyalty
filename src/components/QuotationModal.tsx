@@ -1,7 +1,8 @@
 import React from 'react';
 import { CustomerPricingEntry, PricingCalculationResult } from '../types';
 import { formatCurrency, formatPercent, TIER_CONFIG } from '../utils/calculations';
-import { X, Printer, Dumbbell, Award, Calendar, CheckCircle2 } from 'lucide-react';
+import { ProteamLogo } from './ProteamLogo';
+import { X, Printer, Award, Calendar, CheckCircle2 } from 'lucide-react';
 
 interface QuotationModalProps {
   isOpen: boolean;
@@ -70,12 +71,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({ isOpen, onClose,
           <div className="flex items-start justify-between border-b border-slate-700 pb-5">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
-                  <Dumbbell className="w-5 h-5" />
-                </div>
-                <span className="text-xl font-extrabold tracking-tight text-white">
-                  PROTEAM GYM
-                </span>
+                <ProteamLogo size="md" />
               </div>
               <p className="text-xs text-slate-400">
                 Premium Fitness Club & Member Loyalty Program
