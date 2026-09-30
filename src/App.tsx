@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CustomerPricingEntry, PricingCalculationResult, PricingConfig } from './types';
-import { INITIAL_CUSTOMERS, DEFAULT_CONFIG } from './utils/calculations';
+import { INITIAL_CUSTOMERS, DEFAULT_CONFIG, calculatePricing } from './utils/calculations';
 import { exportToExcel } from './utils/excelExport';
 import { Header } from './components/Header';
 import { PricingCalculator } from './components/PricingCalculator';
@@ -8,8 +8,8 @@ import { CustomerPricingLog } from './components/CustomerPricingLog';
 import { InstructionsView } from './components/InstructionsView';
 import { QuotationModal } from './components/QuotationModal';
 
-const LOCAL_STORAGE_KEY_CUSTOMERS = 'proteam_gym_customers_v3';
-const LOCAL_STORAGE_KEY_CONFIG = 'proteam_gym_pricing_config_v3';
+const LOCAL_STORAGE_KEY_CUSTOMERS = 'proteam_gym_customers_v6';
+const LOCAL_STORAGE_KEY_CONFIG = 'proteam_gym_pricing_config_v6';
 
 export const App: React.FC = () => {
   // Tabs: Pricing Calculator (Нүүр), Customer Log, Заавар
@@ -43,12 +43,38 @@ export const App: React.FC = () => {
     setConfig(DEFAULT_CONFIG);
   };
 
-  // Load customer entries from localStorage or initial seed
+  // Load customer entries from localStorage or initial seed, ensuring 100% exact sum formula
   const [entries, setEntries] = useState<CustomerPricingEntry[]>(() => {
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOMERS);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((e) => {
+            const calc = calculatePricing(
+              e.baseMonthlyPrice || 400000,
+              e.monthsAttended || 0,
+              e.packageMonths || 3,
+              DEFAULT_CONFIG
+            );
+            const totalDisc = calc.packageDiscount + calc.loyaltyDiscount;
+            return {
+              ...e,
+              packageDiscount: calc.packageDiscount,
+              loyaltyDiscount: calc.loyaltyDiscount,
+              appliedDiscount: totalDisc,
+              rawDiscount: totalDisc,
+              isCapped: false,
+              promoMonthlyPrice: calc.promotionalMonthlyPrice,
+              packageTotal: calc.totalPackagePrice,
+              normalPackagePrice: calc.normalPackagePrice,
+              packageSavings: calc.currentPackageSavings,
+              renewalMonthlyPrice: calc.renewalMonthlyPrice,
+              promotionTier: calc.promotionTier,
+              totalExpectedMonths: calc.totalExpectedMonths,
+            };
+          });
+        }
       }
     } catch {
       // ignore
@@ -135,6 +161,7 @@ export const App: React.FC = () => {
         {activeTab === 'log' && (
           <CustomerPricingLog
             entries={entries}
+            config={config}
             onAddEntry={handleAddEntry}
             onUpdateEntry={handleUpdateEntry}
             onDeleteEntry={handleDeleteEntry}

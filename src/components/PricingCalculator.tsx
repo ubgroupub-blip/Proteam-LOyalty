@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   PackageDuration,
-  PromotionTier,
   PricingCalculationResult,
   CustomerPricingEntry,
   PricingConfig,
@@ -23,6 +22,9 @@ import {
   ChevronUp,
   Sparkles,
   Award,
+  ArrowRight,
+  TrendingDown,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface PricingCalculatorProps {
@@ -57,7 +59,8 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
     onUpdateConfig({ ...config, basePrice: safe });
   };
 
-  // Live calculation based on current inputs and dynamic config!
+  // 100% PURE REAL-TIME FORMULA CALCULATION
+  // Automatically recalculates when monthsAttended, packageMonths, basePrice, or config change!
   const calc = calculatePricing(basePrice, monthsAttended, packageMonths, config);
   const tierInfo = TIER_CONFIG.find((t) => t.tier === calc.promotionTier) || TIER_CONFIG[0];
 
@@ -102,12 +105,13 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
                 <h1 className="text-lg font-black tracking-tight text-white uppercase">
                   PRICING CALCULATOR
                 </h1>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800/50">
-                  Автомат тооцоолол
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/50 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                  Excel Томьёо идэвхтэй
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Харилцагчийн мэдээлэл болон багцыг сонгоход үнэ шууд бодогдоно
+                Явсан сар болон Багцын хугацааг өөрчлөхөд бүх хөнгөлөлт, үнэ шууд тооцогдоно
               </p>
             </div>
           </div>
@@ -122,7 +126,7 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
             }`}
           >
             <Sliders className="w-3.5 h-3.5 text-amber-400" />
-            <span>Хөнгөлөлтийн хувь тохируулах</span>
+            <span>Томьёоны хувь тохируулах</span>
             {showConfigDrawer ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
         </div>
@@ -133,7 +137,7 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-bold text-amber-400">
                 <Sliders className="w-4 h-4" />
-                <span>Энд хувь, дүнг гараар өөрчилбөл доторх бүх томьёо шууд дагаж өөрчлөгдөнө:</span>
+                <span>Энд томьёоны суурь хувийг өөрчилбөл доторх бүх тооцоолол шууд дагаж шинэчлэгдэнэ:</span>
               </div>
               <button
                 onClick={onResetConfig}
@@ -339,32 +343,16 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
                 </div>
               </div>
 
-              {/* Cap & Defaults */}
+              {/* Formula & Rule */}
               <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
                 <span className="text-xs font-bold text-amber-300 block">
-                  3. Хөнгөлөлтийн дээд хязгаар (Max Cap)
+                  3. Нийт хөнгөлөлтийн томьёо (Total Discount)
                 </span>
-                <div>
-                  <label className="text-[10px] text-slate-400 block">Дээд хязгаар (Cap %):</label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={Math.round(config.maxDiscountCap * 100)}
-                      onChange={(e) =>
-                        onUpdateConfig({
-                          ...config,
-                          maxDiscountCap: (Number(e.target.value) || 0) / 100,
-                        })
-                      }
-                      className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-white font-mono text-xs pr-6"
-                    />
-                    <span className="absolute right-2 top-1 text-slate-400 text-xs">%</span>
-                  </div>
+                <div className="text-xs text-slate-300 pt-1">
+                  Excel томьёо: <code className="text-cyan-300 font-bold">=E4 + E5</code>
                 </div>
-                <div className="text-[11px] text-slate-400 pt-1 leading-snug">
-                  Excel томьёо: <code className="text-cyan-300">MIN({Math.round(config.maxDiscountCap * 100)}%, Package + Loyalty)</code>
+                <div className="text-[11px] text-slate-400 pt-0.5 leading-relaxed">
+                  Багцын хөнгөлөлт (Package %) дээр Лояалти хөнгөлөлт (Loyalty %)-ийг шууд нэмж <strong>Total Discount</strong> гарна.
                 </div>
               </div>
             </div>
@@ -440,13 +428,13 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
             </div>
 
             {/* Row 6: Months Already Attended */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-semibold text-slate-300">
+            <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-750 space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-bold text-slate-200">
                   Months Already Attended (Явсан сарын тоо)
                 </label>
-                <span className="text-[10px] text-amber-400 font-bold bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800/40">
-                  Өөрчилж болно
+                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/40">
+                  Томьёо: +{formatPercent(calc.loyaltyDiscount)} Loyalty
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -456,7 +444,7 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
                   max="120"
                   value={monthsAttended}
                   onChange={(e) => setMonthsAttended(Math.max(0, parseInt(e.target.value) || 0))}
-                  className="w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center font-mono focus:outline-none focus:border-blue-500 transition"
+                  className="w-24 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-black text-white text-center font-mono focus:outline-none focus:border-blue-500 transition"
                 />
                 <input
                   type="range"
@@ -464,25 +452,38 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
                   max="36"
                   value={monthsAttended}
                   onChange={(e) => setMonthsAttended(parseInt(e.target.value) || 0)}
-                  className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                 />
               </div>
-              <div className="text-[11px] text-slate-400 mt-1 flex justify-between">
-                <span>Хөнгөлөлтийн ангилал:</span>
-                <span className={`font-bold px-2 py-0.5 rounded border text-[10px] ${tierInfo.badgeColor}`}>
-                  {calc.promotionTier} ({formatPercent(calc.loyaltyDiscount)} лояалти)
-                </span>
+              
+              {/* Dynamic Formula Tracker for Loyalty */}
+              <div className="pt-1.5 border-t border-slate-800 grid grid-cols-5 gap-1 text-[10px] text-center font-mono">
+                <div className={`p-1 rounded border ${monthsAttended < 3 ? 'bg-emerald-600/30 border-emerald-400 text-emerald-300 font-bold' : 'bg-slate-850 border-slate-800 text-slate-500'}`}>
+                  &lt;3 сар<br/><span className="text-[11px]">0%</span>
+                </div>
+                <div className={`p-1 rounded border ${monthsAttended >= 3 && monthsAttended < 6 ? 'bg-emerald-600/30 border-emerald-400 text-emerald-300 font-bold' : 'bg-slate-850 border-slate-800 text-slate-500'}`}>
+                  3-5 сар<br/><span className="text-[11px]">{formatPercent(config.loyaltyDiscounts.tier3_5)}</span>
+                </div>
+                <div className={`p-1 rounded border ${monthsAttended >= 6 && monthsAttended < 12 ? 'bg-emerald-600/30 border-emerald-400 text-emerald-300 font-bold' : 'bg-slate-850 border-slate-800 text-slate-500'}`}>
+                  6-11 сар<br/><span className="text-[11px]">{formatPercent(config.loyaltyDiscounts.tier6_11)}</span>
+                </div>
+                <div className={`p-1 rounded border ${monthsAttended >= 12 && monthsAttended < 24 ? 'bg-emerald-600/30 border-emerald-400 text-emerald-300 font-bold' : 'bg-slate-850 border-slate-800 text-slate-500'}`}>
+                  12-23 сар<br/><span className="text-[11px]">{formatPercent(config.loyaltyDiscounts.tier12_23)}</span>
+                </div>
+                <div className={`p-1 rounded border ${monthsAttended >= 24 ? 'bg-emerald-600/30 border-emerald-400 text-emerald-300 font-bold' : 'bg-slate-850 border-slate-800 text-slate-500'}`}>
+                  24+ сар<br/><span className="text-[11px]">{formatPercent(config.loyaltyDiscounts.tier24_plus)}</span>
+                </div>
               </div>
             </div>
 
             {/* Row 7: New Package (months) */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-semibold text-slate-300">
+            <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-750 space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-bold text-slate-200">
                   New Package (months) (Шинэ багц - сараар)
                 </label>
-                <span className="text-[10px] text-amber-400 font-bold bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800/40">
-                  Өөрчилж болно
+                <span className="text-[10px] text-blue-400 font-bold bg-blue-950/80 px-2 py-0.5 rounded border border-blue-800/40">
+                  Томьёо: +{formatPercent(calc.packageDiscount)} Package
                 </span>
               </div>
               <div className="grid grid-cols-4 gap-2">
@@ -497,17 +498,22 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
                       className={`p-2.5 rounded-xl border text-center transition-all ${
                         isSelected
                           ? 'bg-blue-600/30 border-blue-400 text-white shadow-lg ring-1 ring-blue-400'
-                          : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600'
+                          : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600'
                       }`}
                     >
                       <div className="font-bold text-sm">{pkg} сар</div>
-                      <div className="text-[10px] text-emerald-400 font-semibold mt-0.5">
-                        +{formatPercent(pkgRate)}
+                      <div className="text-[10px] text-blue-300 font-semibold mt-0.5">
+                        {monthsAttended === 0 ? '0%' : `+${formatPercent(pkgRate)}`}
                       </div>
                     </button>
                   );
                 })}
               </div>
+              {monthsAttended === 0 && (
+                <p className="text-[10px] text-amber-400 italic">
+                  *Шинэ гишүүн (0 сар явсан) тул Excel томьёоны дагуу Багцын хөнгөлөлт 0% тооцогдоно.
+                </p>
+              )}
             </div>
 
             {/* Notes & Actions */}
@@ -568,13 +574,13 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
               {/* Row 4: Package Discount */}
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
                 <div>
-                  <span className="font-semibold text-slate-300 block">Package Discount (Багцын хөнгөлөлт)</span>
-                  <span className="text-[10px] text-slate-500 font-mono">
-                    {calc.packageMonths} сарын амлалтын урамшуулал
+                  <span className="font-bold text-white block">Package Discount (Багцын хөнгөлөлт)</span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    =IF(MonthsAttended=0, 0, PackageMatrix ({calc.packageMonths} сар))
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono font-bold text-blue-400 text-sm">
+                  <span className="font-mono font-black text-blue-400 text-base">
                     {formatPercent(calc.packageDiscount)}
                   </span>
                 </div>
@@ -583,35 +589,30 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
               {/* Row 5: Loyalty Discount */}
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
                 <div>
-                  <span className="font-semibold text-slate-300 block">Loyalty Discount (Лояалти хөнгөлөлт)</span>
-                  <span className="text-[10px] text-slate-500 font-mono">
-                    {calc.monthsAttended} сар хичээллэсэн гишүүнчлэл
+                  <span className="font-bold text-white block">Loyalty Discount (Лояалти хөнгөлөлт)</span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    =IF(MonthsAttended&lt;3, 0, LoyaltyMatrix ({calc.monthsAttended} сар явсан))
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono font-bold text-emerald-400 text-sm">
+                  <span className="font-mono font-black text-emerald-400 text-base">
                     {formatPercent(calc.loyaltyDiscount)}
                   </span>
                 </div>
               </div>
 
               {/* Row 6: Total Discount */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-blue-950/30 border border-blue-600/40">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-blue-950/40 border border-blue-500/50 shadow-sm">
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <span className="font-bold text-white text-sm">Total Discount (Нийт хөнгөлөлт)</span>
-                    {calc.isCapped && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-700/50">
-                        {Math.round(config.maxDiscountCap * 100)}% Cap!
-                      </span>
-                    )}
+                    <span className="font-extrabold text-white text-sm">Total Discount (Нийт хөнгөлөлт)</span>
                   </div>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    =MIN({Math.round(config.maxDiscountCap * 100)}%, Package + Loyalty) • Бодит нийлбэр: {formatPercent(calc.rawDiscount)}
+                  <span className="text-[10px] text-blue-200 font-mono">
+                    =E4 + E5 = Package ({formatPercent(calc.packageDiscount)}) + Loyalty ({formatPercent(calc.loyaltyDiscount)})
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono font-black text-blue-300 text-lg">
+                  <span className="font-mono font-black text-blue-300 text-xl">
                     {formatPercent(calc.appliedDiscount)}
                   </span>
                 </div>
@@ -624,7 +625,7 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
                     Membership Score / Expected Months (Нийт хүлээгдэж буй сар)
                   </span>
                   <span className="text-[10px] text-slate-500 font-mono">
-                    {calc.monthsAttended} сар явсан + {calc.packageMonths} сарын шинэ багц
+                    ={calc.monthsAttended} сар + {calc.packageMonths} сар
                   </span>
                 </div>
                 <div className="text-right">
@@ -650,15 +651,15 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
               {/* Row 9: Promotional Monthly Price */}
               <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-700">
                 <div>
-                  <span className="font-semibold text-slate-200 block text-sm">
+                  <span className="font-bold text-slate-200 block text-sm">
                     Promotional Monthly Price (Урамшуулалт сарын үнэ)
                   </span>
-                  <span className="text-[10px] text-slate-500 font-mono">
-                    ={formatCurrency(calc.baseMonthlyPrice)} * (1 - {formatPercent(calc.appliedDiscount)})
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    =BasePrice * (1 - TotalDiscount) = {formatCurrency(calc.baseMonthlyPrice)} * (1 - {formatPercent(calc.appliedDiscount)})
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono font-black text-white text-base">
+                  <span className="font-mono font-black text-white text-lg">
                     {formatCurrency(calc.promotionalMonthlyPrice)}
                   </span>
                   <span className="text-[10px] text-slate-400 block">/ сар</span>
@@ -666,35 +667,37 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
               </div>
 
               {/* Row 10: Total Current Package Price */}
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/60 to-blue-950/60 border border-emerald-500/40 shadow-inner">
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/70 to-blue-950/70 border-2 border-emerald-500/50 shadow-lg">
                 <div>
                   <span className="font-black text-emerald-200 block text-sm sm:text-base">
                     Total Current Package Price (Нийт багцын төлөх дүн)
                   </span>
                   <span className="text-[10px] text-emerald-400 font-mono">
-                    ={formatCurrency(calc.promotionalMonthlyPrice)} * {calc.packageMonths} сар
+                    =PromotionalMonthlyPrice * {calc.packageMonths} сар
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono font-black text-emerald-300 text-xl sm:text-2xl">
+                  <span className="font-mono font-black text-emerald-300 text-2xl sm:text-3xl">
                     {formatCurrency(calc.totalPackagePrice)}
                   </span>
                 </div>
               </div>
 
-              {/* Rows 11 & 12: Normal Package Price & Savings */}
+              {/* Rows 11 & 12: Normal Package Price & Current Package Savings */}
               <div className="grid grid-cols-2 gap-2">
-                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="text-[11px] text-slate-400 block">Ердийн хөнгөлөлтгүй дүн:</span>
-                  <span className="font-mono font-semibold text-slate-300 line-through text-sm">
+                <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                  <span className="text-[11px] text-slate-400 block font-medium">Normal Package Price:</span>
+                  <span className="text-[10px] text-slate-500 font-mono block">=Base * Package</span>
+                  <span className="font-mono font-bold text-slate-400 line-through text-sm mt-0.5 block">
                     {formatCurrency(calc.normalPackagePrice)}
                   </span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="text-[11px] text-emerald-400 block font-semibold">
-                    Нийт хэмнэлтийн дүн:
+                <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-700/50">
+                  <span className="text-[11px] text-emerald-300 block font-bold">
+                    Current Package Savings:
                   </span>
-                  <span className="font-mono font-bold text-emerald-400 text-sm">
+                  <span className="text-[10px] text-emerald-400/80 font-mono block">=Normal - Current</span>
+                  <span className="font-mono font-black text-emerald-400 text-base mt-0.5 block">
                     {formatCurrency(calc.currentPackageSavings)} ({calc.savingsPercentage}%)
                   </span>
                 </div>

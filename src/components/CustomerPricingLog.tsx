@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { CustomerPricingEntry, PromotionTier, PackageDuration } from '../types';
+import { CustomerPricingEntry, PromotionTier, PackageDuration, PricingConfig } from '../types';
 import {
   formatCurrency,
   formatPercent,
   TIER_CONFIG,
   calculatePricing,
+  DEFAULT_CONFIG,
 } from '../utils/calculations';
 import {
   Search,
@@ -25,6 +26,7 @@ import {
 
 interface CustomerPricingLogProps {
   entries: CustomerPricingEntry[];
+  config?: PricingConfig;
   onAddEntry: (entry: Omit<CustomerPricingEntry, 'id' | 'createdAt'>) => void;
   onUpdateEntry: (entry: CustomerPricingEntry) => void;
   onDeleteEntry: (id: string) => void;
@@ -34,6 +36,7 @@ interface CustomerPricingLogProps {
 
 export const CustomerPricingLog: React.FC<CustomerPricingLogProps> = ({
   entries,
+  config = DEFAULT_CONFIG,
   onAddEntry,
   onUpdateEntry,
   onDeleteEntry,
@@ -59,7 +62,7 @@ export const CustomerPricingLog: React.FC<CustomerPricingLogProps> = ({
   const totalSavings = entries.reduce((acc, curr) => acc + curr.packageSavings, 0);
   const avgDiscount =
     entries.length > 0
-      ? entries.reduce((acc, curr) => acc + curr.appliedDiscount, 0) / entries.length
+      ? entries.reduce((acc, curr) => acc + (curr.packageDiscount + curr.loyaltyDiscount), 0) / entries.length
       : 0;
 
   // Filtered entries
@@ -80,7 +83,8 @@ export const CustomerPricingLog: React.FC<CustomerPricingLogProps> = ({
     e.preventDefault();
     if (!newCustName.trim()) return;
 
-    const calc = calculatePricing(newBasePrice, newMonthsAttended, newPackageMonths);
+    const calc = calculatePricing(newBasePrice, newMonthsAttended, newPackageMonths, config);
+    const totalDiscount = calc.packageDiscount + calc.loyaltyDiscount;
     onAddEntry({
       customerId: newCustId.trim() || `C-${Date.now().toString().slice(-4)}`,
       customerName: newCustName.trim(),
@@ -90,9 +94,9 @@ export const CustomerPricingLog: React.FC<CustomerPricingLogProps> = ({
       totalExpectedMonths: calc.totalExpectedMonths,
       packageDiscount: calc.packageDiscount,
       loyaltyDiscount: calc.loyaltyDiscount,
-      appliedDiscount: calc.appliedDiscount,
-      rawDiscount: calc.rawDiscount,
-      isCapped: calc.isCapped,
+      appliedDiscount: totalDiscount,
+      rawDiscount: totalDiscount,
+      isCapped: false,
       promoMonthlyPrice: calc.promotionalMonthlyPrice,
       packageTotal: calc.totalPackagePrice,
       normalPackagePrice: calc.normalPackagePrice,
@@ -119,17 +123,19 @@ export const CustomerPricingLog: React.FC<CustomerPricingLogProps> = ({
     const calc = calculatePricing(
       editingEntry.baseMonthlyPrice,
       editingEntry.monthsAttended,
-      editingEntry.packageMonths
+      editingEntry.packageMonths,
+      config
     );
+    const totalDiscount = calc.packageDiscount + calc.loyaltyDiscount;
 
     onUpdateEntry({
       ...editingEntry,
       totalExpectedMonths: calc.totalExpectedMonths,
       packageDiscount: calc.packageDiscount,
       loyaltyDiscount: calc.loyaltyDiscount,
-      appliedDiscount: calc.appliedDiscount,
-      rawDiscount: calc.rawDiscount,
-      isCapped: calc.isCapped,
+      appliedDiscount: totalDiscount,
+      rawDiscount: totalDiscount,
+      isCapped: false,
       promoMonthlyPrice: calc.promotionalMonthlyPrice,
       packageTotal: calc.totalPackagePrice,
       normalPackagePrice: calc.normalPackagePrice,
@@ -324,13 +330,12 @@ export const CustomerPricingLog: React.FC<CustomerPricingLogProps> = ({
                       </td>
                       <td className="py-3 px-3 text-center">
                         <span
-                          className={`font-bold px-1.5 py-0.5 rounded text-[11px] ${
-                            row.isCapped
-                              ? 'bg-amber-950/60 text-amber-300 border border-amber-800/50'
-                              : 'bg-emerald-950/50 text-emerald-300 border border-emerald-800/40'
-                          }`}
+                          className="font-bold px-2 py-0.5 rounded text-[11px] bg-blue-950/60 text-blue-300 border border-blue-800/50 font-mono"
                         >
-                          {formatPercent(row.appliedDiscount)}
+                          {formatPercent(row.packageDiscount + row.loyaltyDiscount)}
+                        </span>
+                        <span className="block text-[9px] text-slate-400 font-mono mt-0.5 whitespace-nowrap">
+                          ={formatPercent(row.packageDiscount)} + {formatPercent(row.loyaltyDiscount)}
                         </span>
                       </td>
                       <td className="py-3 px-3 font-mono font-medium text-slate-200">
@@ -386,7 +391,7 @@ export const CustomerPricingLog: React.FC<CustomerPricingLogProps> = ({
             Showing {filteredEntries.length} of {entries.length} members
           </span>
           <span className="italic">
-            Formula: Promo Monthly = Base * (1 - Total Applied Discount capped at 30%)
+            Formula: Total Discount = Package Discount + Loyalty Discount | Promo Monthly = Base * (1 - Total Discount)
           </span>
         </div>
       </div>

@@ -68,4 +68,6 @@ export interface PricingCalculationResult {
   promotionTier: PromotionTier;
   nextTierName: PromotionTier | null;
   monthsToNextTier: number | null;
+  formulaLoyaltyDiscount: number;
+  isLoyaltyOverridden: boolean;
 }
